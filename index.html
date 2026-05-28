@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>English Festival 2026 — Assistant</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+  <header>
+    <div class="header-icon">🎭</div>
+    <div class="header-text">
+      <h1>English Festival 2026</h1>
+      <p><span class="status-dot"></span>Festival Assistant — MEP Costa Rica</p>
+    </div>
+  </header>
+
+  <div id="chat-window">
+    <div class="welcome-card">
+      <div class="big-emoji">🌟</div>
+      <h2>Festival de Inglés 2026</h2>
+      <p>Ask me anything about the English Festival Manual — activities, guidelines, roles, cycles, or how to organize
+        your festival.</p>
+      <div class="suggestions">
+        <button class="suggestion-btn" onclick="sendSuggestion(this)">What activities can preschoolers do?</button>
+        <button class="suggestion-btn" onclick="sendSuggestion(this)">Is the festival competitive?</button>
+        <button class="suggestion-btn" onclick="sendSuggestion(this)">What is the teacher's role?</button>
+        <button class="suggestion-btn" onclick="sendSuggestion(this)">Activities for secondary school</button>
+        <button class="suggestion-btn" onclick="sendSuggestion(this)">What is a mini-project?</button>
+        <button class="suggestion-btn" onclick="sendSuggestion(this)">Can Spelling Bee be included?</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="input-bar">
+    <div class="input-inner">
+      <textarea id="user-input" rows="1" placeholder="Ask about the English Festival Manual…"
+        onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+      <button id="send-btn" onclick="sendMessage()" title="Send">➤</button>
+    </div>
+    <p class="input-hint">Powered by Claude · Based on the Official MEP English Festival Manual 2026</p>
+  </div>
+
+<script src="script.js"></script>
+
+
+</body>
+
+</html>
