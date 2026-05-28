@@ -1,218 +1,352 @@
-// ═══════════════════════════════════════════════
-// 🔑 PUT YOUR ANTHROPIC API KEY HERE
-// ═══════════════════════════════════════════════
-const API_KEY = "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";
-// ═══════════════════════════════════════════════
+/* =============================================
+   English Festival 2026 — Chatbot Script
+   ============================================= */
 
-const MANUAL_CONTEXT = `
-You are a helpful assistant for the MEP (Ministerio de Educación Pública) Costa Rica English Festival 2026. 
-Answer questions based ONLY on the following manual content. Be helpful, clear, and concise.
-If a question is not covered in the manual, say so politely.
-Respond in the same language the user writes in (Spanish or English).
+// ── API CONFIGURATION ────────────────────────
+const API_KEY   = "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";
+const API_MODEL = "claude-haiku-4-5-20251001";
 
-=== ENGLISH FESTIVAL 2026 MANUAL — KEY CONTENT ===
+// ── CLOUDFLARE WORKER URL ─────────────────────
+// This proxy worker handles CORS so the API call works from GitHub Pages.
+// Deploy the worker from worker.js to Cloudflare (free) and paste the URL here.
+// Example: "https://english-festival.YOUR-SUBDOMAIN.workers.dev"
+const WORKER_URL = "https://dawn-snowflake-3dab.jorgecalvoj11.workers.dev/";
 
-DESCRIPTION:
-The Festival de Inglés is an inclusive space for all students across preschool, primary, and secondary (academic, technical, bilingual, night school, CINDEA, IPEC, etc.) to demonstrate their English language competencies. It is NOT competitive — it is formative. The goal is to highlight student talents and linguistic competencies.
+// ── MANUAL CONTEXT (system prompt) ───────────
+const SYSTEM_PROMPT = `
+You are a helpful, friendly assistant for the MEP (Ministerio de Educación Pública) Costa Rica English Festival 2026.
+Answer questions based ONLY on the manual content below. Be clear, helpful, and concise.
+If something is not covered in the manual, say so politely and suggest what section might help.
+Always respond in the same language the user writes in — Spanish or English.
+Use bullet points or short paragraphs for clarity. Never make up information.
+
+══════════════════════════════════════════════
+ENGLISH FESTIVAL 2026 — FULL MANUAL CONTENT
+══════════════════════════════════════════════
+
+WHAT IS THE FESTIVAL?
+The Festival de Inglés is an inclusive, non-competitive, formative space for ALL students across ALL levels and modalities of Costa Rica's public education system — preschool (preescolar, acelerador), primary (primaria, aceleradores), and secondary (académica, técnica, bilingüe, nocturna, EOS, telesecundaria, CINDEA, IPEC, Liceo Rural, Colegios Científicos, Ambientalistas, plan nacional, EPJA, etc.) — to demonstrate their English linguistic competencies in creative, free ways aligned to current study programs.
+
+IT IS NOT COMPETITIVE. It is formative. Its purpose is to highlight student talents and linguistic competencies.
 
 GENERAL OBJECTIVE:
-To provide students with spaces to demonstrate linguistic competencies developed during the teaching-learning process, in line with current English study programs.
+Provide students with spaces to demonstrate the linguistic competencies developed during the teaching-learning process, within the framework of current English study programs.
+
+SPECIFIC OBJECTIVES:
+- Provide students with a space for interaction and use of English in meaningful communicative situations.
+- Facilitate healthy coexistence and interculturality through dynamic participation.
+- Develop creativity, autonomy, and critical thinking aligned with 21st-century demands.
+- Involve students, teachers, and parents/guardians in supporting English language learning.
 
 KEY GUIDELINES:
-- All students enrolled in public institutions may participate.
-- The festival is held annually per the school calendar.
-- Organization is led by the English teacher/department in collaboration with the educational community (parents, admin, local collaborators).
-- It is NOT exclusively the English teacher's responsibility — it's a community effort.
-- Spelling Bee is NOT part of the festival framework.
-- Dance activities are NOT considered linguistic competencies and do NOT belong in the festival.
-- Preparation happens during regular class time — no extra hours or additional workload for teachers.
-- Universal Design for Learning (DUA) principles must apply — inclusive, flexible participation.
-- The festival can be open to families and community as spectators when resources allow.
-
-TEACHER'S ROLE:
-1. Coordinate the festival collaboratively with parents, admin, and community.
-2. Register participating students and present lists to school administration.
-3. Ensure students have materials and information needed.
-4. Report to Regional Advisory with photos and evidence.
-5. Share achievements with students, project professionally in the community.
-
-PRESCHOOL (Primera Infancia):
-Modalities: Open House OR English Festival.
-Focus: Oral comprehension and emergent oral expression in meaningful contexts.
-Activities: symbolic play, storytelling, songs with actions, simple role plays, daily routines (greetings, weather, feelings), nature exploration, physical activities.
-NOT accepted: mechanical repetition, imitation without linguistic mediation, artistic activities where English is not a real communication tool.
-Sample themes: Body Awareness (The Hospital), Elements in the Environment (Nature Exploration), School (Roleplay), My Feelings (Feeling Detective), Family (Family Role Play), Physical Activity (Follow the Leader).
-
-FIRST AND SECOND CYCLE (Primero y Segundo Ciclos — Primary):
-Approach: Action-Oriented Approach (AOA). Students as social agents and progressive language users.
-Focus: Oral and written comprehension and production, simple communicative tasks.
-Without technology: Mini-project displays (posters, models), role plays, guided oral presentations, storytelling, communicative task stations.
-With technology: Interview videos, dramatizations, digital presentations, short podcasts, productions from Hummingbird Project.
-
-First Cycle sample tasks:
-- My Daily Routines Poster (poster + oral presentation)
-- Greetings Around the School (role play in different school spaces)
-- My Favorite Animal Show and Tell (simple descriptions)
-- My Community Mini Video (group video + oral presentation)
-- My Family Digital Story (digital slideshow + oral)
-
-Second Cycle sample tasks:
-- My Community in Action (poster/model of community + oral explanation)
-- Problem Solvers Role Play (dramatizations solving everyday situations)
-- My Healthy Life Presentation (health habits poster + oral)
-- Mini Documentary: My School Life (video + oral presentation)
-- My Opinion Podcast (audio recording of opinions)
-
-THIRD CYCLE AND DIVERSIFICADA (Secondary):
-Students as social agents using English for real communication tasks.
-Modalities covered: academic, technical, bilingual sections, night school, EOS workshops, rural schools, CINDEA, IPEC, etc.
-Technical schools should show higher communicative complexity.
-Bilingual schools should show broader, more fluent language use.
-
-Sample tasks:
-- Mini-Projects: demonstrate classroom learning aligned to study program scenarios.
-- Literary Projects: stories, comics, essays, autobiographies, oral/written narratives. Required for EOS workshops and bilingual schools.
-- Songs: original composition, adaptation, or interpretation with communicative intention (must include contextualization, not just mechanical reproduction).
-- Oral Speeches (Discursos): inform, persuade, or convince — can use audiovisual aids, must NOT read directly from notes.
-- Role Plays: groups of 3-6, fictional or real situations from study program, include improvisation.
-- Spontaneous or Guided Interactions: conversations with or without a script, topics from study program scenarios.
-- Debates: critical exchange of ideas, students defend positions with arguments.
-
-APPENDIX ACTIVITIES:
-- Reader's Theater: students each play a character, reading a script expressively for an audience. Steps: choose story, identify characters, read script silently, understand vocabulary, practice, present.
-- Conversations: pairs or groups (max 4), spontaneous dialogue on topics from study programs, minimum 2 minutes.
-- Role Plays (detailed steps): groups of 3-6, choose a study program topic, write a script, practice, optionally create costumes, present, judges evaluate with a rubric.
+- All enrolled students in public institutions may participate.
+- Held annually per the school calendar.
+- Organized by the English teacher/department in collaboration with parents, admin, and community — NOT the exclusive responsibility of the English teacher.
+- Preparation is done DURING regular class hours. No extra hours, no additional workload for teachers.
+- Universal Design for Learning (DUA) must apply — flexible, inclusive, accessible for all.
+- The festival may be open to families and community as spectators when resources allow.
+- The manual must be shared with parents in an official meeting.
+- Regional Advisors are responsible for disseminating the festival rules to all English teachers in their region.
+- Cultural activities related to the target language should be included.
 
 WHAT IS NOT ALLOWED:
-- Spelling Bee (does not meet festival criteria)
-- Dance activities (not linguistic competencies)
-- Activities outside regular school hours
-- Additional workload for teachers beyond regular planning
+- Spelling Bee → does NOT meet festival criteria. NOT part of the festival framework.
+- Dance activities → NOT considered linguistic competencies. NOT part of the festival.
+- Activities outside regular school hours.
+- Extra workload for teachers beyond regular planning.
 
-PLAN NACIONAL students: may participate using activities described for any level that fits their context.
-`;
+TEACHER'S ROLE:
+1. Coordinate the festival collaboratively with parents, admin, and local community.
+2. Register participating students and submit lists to school administration.
+3. Ensure students have all materials and information needed.
+4. Report to Regional Advisory with photos and evidence of the festival.
+5. Share student achievements; project creativity and professionalism before the community.
+6. Update knowledge and techniques; reinforce vocabulary aligned to study programs.
 
+─────────────────────────────────────────────
+PRESCHOOL (Educación de la Primera Infancia)
+─────────────────────────────────────────────
+Modalities: Open House OR English Festival.
+Focus: Oral comprehension and emergent oral expression in meaningful, playful, socially relevant contexts.
+Responses may be through gestures, pointing, body participation, or emerging words — all valid.
+DUA principles must guarantee multiple forms of participation, representation, and expression.
+
+WHAT IS ACCEPTED:
+- Symbolic play / juego simbólico
+- Storytelling with books or printed images
+- Songs with actions showing comprehension
+- Simple role plays with brief, repetitive model phrases
+- Daily routines (greetings, weather, feelings, classroom actions)
+- Nature exploration / science activities
+- Physical movement games
+
+WHAT IS NOT ACCEPTED:
+- Activities based only on mechanical repetition
+- Imitation without linguistic mediation
+- Artistic performances where English is NOT a real communication tool
+
+SAMPLE ACTIVITIES:
+1. Body Awareness — "The Hospital": symbolic play as doctor/patient/family. Language: "What's wrong? My head hurts. Sit down. You're okay."
+2. Elements in the Environment — "Nature Exploration": students observe natural elements. Language: "Look! What is this? Big/small. Same/different. Colors. Shapes."
+3. School — "School Experience Roleplay": students explore school spaces, assume roles (teacher, student, helper). Language: "Hello! Let's play. Your turn/My turn. Help me. Thank you."
+4. My Feelings — "Feeling Detective": identify and express basic emotions in English with visual support. Language: "Happy/Sad/Angry/Scared. I feel… Are you okay?"
+5. Family — "Family Role Play": represent daily family scenes (cooking, caring). Language: "This is my mom/dad/sister/brother. I love my…"
+6. Physical Activity — "Follow the Leader": follow movements, students assume leader role spontaneously. Language: "Follow me, let's go, stop, go, jump, run."
+
+─────────────────────────────────────────────
+FIRST AND SECOND CYCLE — Primary
+─────────────────────────────────────────────
+Approach: Action-Oriented Approach (AOA). Students as social agents and progressive language users.
+Focus: Oral and written comprehension and production. Meaningful communicative tasks. NOT mechanical repetition.
+
+WITHOUT TECHNOLOGY:
+- Mini-project displays: posters, models, oral presentations
+- Role plays and dramatizations (ordering food, asking for information, interviews)
+- Guided oral presentations with visual supports
+- Oral narrations / storytelling
+- Communicative task stations
+
+WITH TECHNOLOGY:
+- Short interview or dramatization videos
+- Digital presentations accompanying oral production
+- Short podcasts
+- Hummingbird Project productions
+
+FIRST CYCLE SAMPLE TASKS:
+1. My Daily Routines Poster: poster + oral presentation. Language: daily routines, simple present.
+2. Greetings Around the School: role play in different school spaces. Language: Hello, Good morning, How are you?
+3. My Favorite Animal Show and Tell: "This is my favorite animal. It is big. I like it."
+4. My Community Mini Video: group video + oral presentation. Language: places in community.
+5. My Family Digital Story: digital slides about family + oral presentation.
+
+SECOND CYCLE SAMPLE TASKS:
+1. My Community in Action: poster/model + explain places and activities.
+2. Problem Solvers Role Play: everyday situations (lost object, asking directions).
+3. My Healthy Life Presentation: health habits poster + oral.
+4. Mini Documentary My School Life: group video + oral presentation.
+5. My Opinion Podcast: audio recording of opinions + brief oral interaction.
+
+─────────────────────────────────────────────
+THIRD CYCLE AND DIVERSIFICADA — Secondary
+─────────────────────────────────────────────
+Approach: Action-Oriented Approach. Students as social agents using English for real tasks.
+Activities should reflect mini-projects or communicative tasks from regular classroom work.
+
+MODALITY EXPECTATIONS:
+- Technical schools: higher communicative complexity, specialized language.
+- Bilingual schools / Liceos Experimentales Bilingües: broader, more fluent language use.
+- EOS workshops: authentic communicative situations; coordinate with academic English department.
+- Night schools, CINDEA, IPEC, rural schools: adapted to context and resources.
+
+SAMPLE TASKS:
+1. Mini-Projects: demonstrate classroom learning aligned to study program scenarios.
+2. Literary Projects: stories, narratives, comic strips, essays, autobiographies. Required for EOS; available to all schools.
+3. Songs: original composition, adaptation, or interpretation. Must include contextualization — NOT mechanical reproduction.
+4. Oral Speeches: inform, persuade, or convince. May use audiovisual aids and brief notes — must NOT read directly.
+5. Role Plays: groups of 3–6. Script, practice, optionally costumes. Includes improvisation.
+6. Spontaneous or Guided Interactions: conversations on topics from study program scenarios.
+7. Debates: critical exchange. Students take a position and defend with arguments.
+
+─────────────────────────────────────────────
+APPENDIX — ADDITIONAL ACTIVITIES
+─────────────────────────────────────────────
+
+READER'S THEATER: Each student interprets a character expressively for an audience.
+Steps: choose story → identify characters → listen to teacher read → read silently → look up vocabulary → share comprehension → analyze characters → choose role → optional costume → identify own dialogues → read together → practice and present.
+
+CONVERSATIONS: Pairs or groups (max 4). Spontaneous dialogue on study program topics. Minimum 2 minutes.
+
+ROLE-PLAYS (detailed steps): Groups of 3–6. Choose topic → write script → practice → optional costumes → present before audience → judges evaluate with rubric.
+
+PLAN NACIONAL STUDENTS: May participate using activities from any level that fits their context.
+`.trim();
+
+// ── STATE ─────────────────────────────────────
 let conversationHistory = [];
+let isLoading = false;
 
+// ── DOM HELPERS ───────────────────────────────
+const chatWindow = () => document.getElementById("chat-window");
+const userInput  = () => document.getElementById("user-input");
+const sendBtn    = () => document.getElementById("send-btn");
+
+// ── AUTO-RESIZE TEXTAREA ─────────────────────
 function autoResize(el) {
-    el.style.height = 'auto';
-    el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+  el.style.height = "auto";
+  el.style.height = Math.min(el.scrollHeight, 130) + "px";
 }
 
+// ── KEYBOARD HANDLER ─────────────────────────
 function handleKey(e) {
-    if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        sendMessage();
-    }
-}
-
-function sendSuggestion(btn) {
-    document.getElementById('user-input').value = btn.textContent;
+  if (e.key === "Enter" && !e.shiftKey) {
+    e.preventDefault();
     sendMessage();
+  }
 }
 
-function addMessage(role, text) {
-    const win = document.getElementById('chat-window');
-    const div = document.createElement('div');
-    div.className = `msg ${role}`;
-
-    const avatar = document.createElement('div');
-    avatar.className = 'avatar';
-    avatar.textContent = role === 'user' ? '👤' : '🎭';
-
-    const bubble = document.createElement('div');
-    bubble.className = 'bubble';
-    bubble.innerHTML = formatText(text);
-
-    div.appendChild(avatar);
-    div.appendChild(bubble);
-    win.appendChild(div);
-    win.scrollTop = win.scrollHeight;
-    return bubble;
+// ── SUGGESTION BUTTONS ───────────────────────
+function sendSuggestion(btn) {
+  userInput().value = btn.textContent.trim();
+  sendMessage();
 }
 
-function formatText(text) {
-    return text
-        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-        .replace(/^- (.+)$/gm, '<li>$1</li>')
-        .replace(/<li>/g, '<ul><li>').replace(/<\/li>(?![\s\S]*<li>)/, '</li></ul>')
-        .replace(/\n\n/g, '</p><p>')
-        .replace(/\n/g, '<br>');
+// ── SCROLL TO BOTTOM ─────────────────────────
+function scrollToBottom() {
+  const win = chatWindow();
+  win.scrollTop = win.scrollHeight;
 }
 
+// ── ADD A MESSAGE BUBBLE ─────────────────────
+function addMessage(role, text, isError = false) {
+  const win = chatWindow();
+  const div = document.createElement("div");
+  div.className = `msg ${role}`;
+
+  const avatar = document.createElement("div");
+  avatar.className = "avatar";
+  avatar.textContent = role === "user" ? "👤" : "🎭";
+
+  const bubble = document.createElement("div");
+  bubble.className = "bubble" + (isError ? " error-bubble" : "");
+  bubble.innerHTML = renderMarkdown(text);
+
+  div.appendChild(avatar);
+  div.appendChild(bubble);
+  win.appendChild(div);
+  scrollToBottom();
+  return bubble;
+}
+
+// ── TYPING INDICATOR ─────────────────────────
 function showTyping() {
-    const win = document.getElementById('chat-window');
-    const div = document.createElement('div');
-    div.className = 'msg bot';
-    div.id = 'typing-indicator';
+  const win = chatWindow();
+  const div = document.createElement("div");
+  div.className = "msg bot";
+  div.id = "typing-indicator";
 
-    const avatar = document.createElement('div');
-    avatar.className = 'avatar';
-    avatar.textContent = '🎭';
+  const avatar = document.createElement("div");
+  avatar.className = "avatar";
+  avatar.textContent = "🎭";
 
-    const bubble = document.createElement('div');
-    bubble.className = 'bubble typing-bubble';
-    bubble.innerHTML = '<span></span><span></span><span></span>';
+  const bubble = document.createElement("div");
+  bubble.className = "bubble typing-bubble";
+  bubble.innerHTML = "<span></span><span></span><span></span>";
 
-    div.appendChild(avatar);
-    div.appendChild(bubble);
-    win.appendChild(div);
-    win.scrollTop = win.scrollHeight;
+  div.appendChild(avatar);
+  div.appendChild(bubble);
+  win.appendChild(div);
+  scrollToBottom();
 }
 
 function removeTyping() {
-    const el = document.getElementById('typing-indicator');
-    if (el) el.remove();
+  const el = document.getElementById("typing-indicator");
+  if (el) el.remove();
 }
 
+// ── SIMPLE MARKDOWN RENDERER ─────────────────
+function renderMarkdown(text) {
+  let html = text
+    .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+    .replace(/\*(.*?)\*/g, "<em>$1</em>")
+    .replace(/^### (.+)$/gm, "<h3>$1</h3>")
+    .replace(/^[-•] (.+)$/gm, "<li>$1</li>")
+    .replace(/^\d+\. (.+)$/gm, "<li>$1</li>");
+
+  html = html.replace(/(<li>[\s\S]*?<\/li>)(\n<li>[\s\S]*?<\/li>)*/g, (m) => `<ul>${m}</ul>`);
+  html = html.replace(/\n\n/g, "</p><p>").replace(/\n/g, "<br>");
+  return `<p>${html}</p>`;
+}
+
+// ── SEND MESSAGE ─────────────────────────────
 async function sendMessage() {
-    const input = document.getElementById('user-input');
-    const btn = document.getElementById('send-btn');
-    const text = input.value.trim();
-    if (!text) return;
+  const input = userInput();
+  const text  = input.value.trim();
+  if (!text || isLoading) return;
 
-    input.value = '';
-    input.style.height = 'auto';
-    addMessage('user', text);
+  // Hide welcome card on first message
+  const welcome = document.getElementById("welcome-card");
+  if (welcome) welcome.style.display = "none";
 
-    conversationHistory.push({ role: 'user', content: text });
+  addMessage("user", text);
+  input.value = "";
+  input.style.height = "auto";
 
-    btn.disabled = true;
-    showTyping();
+  conversationHistory.push({ role: "user", content: text });
+
+  isLoading = true;
+  sendBtn().disabled = true;
+  showTyping();
+
+  try {
+    const payload = {
+      model: API_MODEL,
+      max_tokens: 1000,
+      system: SYSTEM_PROMPT,
+      messages: conversationHistory
+    };
+
+    // Try direct API first (works locally), fall back to worker (for GitHub Pages)
+    let response;
+    let usedWorker = false;
 
     try {
-        const response = await fetch('https://api.anthropic.com/v1/messages', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'x-api-key': API_KEY,
-                'anthropic-version': '2023-06-01',
-                'anthropic-dangerous-direct-browser-access': 'true'
-            },
-            body: JSON.stringify({
-                model: 'claude-sonnet-4-20250514',
-                max_tokens: 1000,
-                system: MANUAL_CONTEXT,
-                messages: conversationHistory
-            })
-        });
-
-        const data = await response.json();
-        removeTyping();
-
-        if (data.content && data.content[0]) {
-            const reply = data.content[0].text;
-            conversationHistory.push({ role: 'assistant', content: reply });
-            addMessage('bot', reply);
-        } else {
-            addMessage('bot', '⚠️ Sorry, I couldn\'t get a response. Please check the API key and try again.');
-        }
-    } catch (err) {
-        removeTyping();
-        addMessage('bot', '⚠️ Connection error. Please check your internet connection and try again.');
-        console.error(err);
+      response = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": API_KEY,
+          "anthropic-version": "2023-06-01",
+          "anthropic-dangerous-direct-browser-access": "true"
+        },
+        body: JSON.stringify(payload)
+      });
+    } catch (corsError) {
+      // CORS blocked — try via worker
+      if (!WORKER_URL || WORKER_URL === "PASTE_YOUR_WORKER_URL_HERE") {
+        throw new Error("CORS_NO_WORKER");
+      }
+      usedWorker = true;
+      response = await fetch(WORKER_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ apiKey: API_KEY, ...payload })
+      });
     }
 
-    btn.disabled = false;
-    input.focus();
+    const data = await response.json();
+    removeTyping();
+
+    if (data.content && data.content[0] && data.content[0].text) {
+      const reply = data.content[0].text;
+      conversationHistory.push({ role: "assistant", content: reply });
+      addMessage("bot", reply);
+    } else if (data.error) {
+      addMessage("bot", `⚠️ API Error: ${data.error.message}`, true);
+    } else {
+      addMessage("bot", "⚠️ No response received. Please try again.", true);
+    }
+
+  } catch (err) {
+    removeTyping();
+    if (err.message === "CORS_NO_WORKER") {
+      addMessage("bot",
+        "⚠️ **CORS Error:** This site is hosted on GitHub Pages which blocks direct API calls.\n\n" +
+        "To fix this, deploy the included `worker.js` to Cloudflare Workers (free) and paste the URL into `script.js`.\n\n" +
+        "See `SETUP.md` for step-by-step instructions.",
+        true
+      );
+    } else {
+      addMessage("bot", "⚠️ Connection error. Please check your internet and try again.", true);
+    }
+    console.error("Error:", err);
+  }
+
+  isLoading = false;
+  sendBtn().disabled = false;
+  input.focus();
 }
+
+// ── INIT ─────────────────────────────────────
+document.addEventListener("DOMContentLoaded", () => {
+  userInput().focus();
+});
