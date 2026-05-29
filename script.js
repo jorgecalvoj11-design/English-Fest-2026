@@ -154,6 +154,19 @@ CONVERSATIONS: Pairs or groups (max 4). Spontaneous dialogue on study program to
 ROLE-PLAYS (detailed steps): Groups of 3–6. Choose topic → write script → practice → optional costumes → present before audience → judges evaluate with rubric.
 
 PLAN NACIONAL STUDENTS: May participate using activities from any level that fits their context.
+
+══════════════════════════════════════════════
+REGIONAL CONTACTS
+══════════════════════════════════════════════
+If a question cannot be answered from this manual, politely say you don't have that information and suggest the user contact the appropriate Regional Advisor (Asesor Regional) by email:
+
+- DRE Coto: nancy.garcia.vega@mep.go.cr
+- DRE Occidente: paola.artavia.moya@mep.go.cr
+- DRE Grande del Térraba: diana.granados.villafuerte@mep.go.cr
+- DRE Limón: kisha.davis.smith@mep.go.cr
+- DRE Sulá: jose.diaz.martinez@mep.go.cr
+
+IMPORTANT: Only mention these contacts when you truly cannot answer the question from the manual. Do NOT mention them in every response.
 `.trim();
 
 // ── STATE ─────────────────────────────────────

@@ -339,3 +339,69 @@ header {
   header            { padding: 12px 14px; }
   .header-text h1   { font-size: 1rem; }
 }
+
+/* ── CONTACTS SECTION ────────────────────────── */
+#contacts {
+  background: var(--navy);
+  color: var(--white);
+  padding: 28px 16px;
+}
+
+.contacts-inner {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+#contacts h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 16px;
+  color: var(--gold);
+  text-align: center;
+}
+
+.contacts-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+
+.contact-card {
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 12px;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: all 0.2s ease;
+  min-width: 200px;
+  flex: 1;
+  max-width: 240px;
+}
+
+.contact-card:hover {
+  background: rgba(240,165,0,0.15);
+  border-color: var(--gold);
+  transform: translateY(-2px);
+}
+
+.contact-region {
+  font-weight: 600;
+  font-size: 0.82rem;
+  color: var(--gold);
+  letter-spacing: 0.02em;
+}
+
+.contact-email {
+  font-size: 0.75rem;
+  color: #cbd5e0;
+  word-break: break-all;
+}
+
+@media (max-width: 500px) {
+  .contact-card { max-width: 100%; }
+}
