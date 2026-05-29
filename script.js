@@ -3,7 +3,7 @@
    ============================================= */
 
 // ── API CONFIGURATION ────────────────────────
-const API_KEY   = "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";
+const API_KEY   = "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";
 const API_MODEL = "claude-haiku-4-5-20251001";
 const WORKER_URL = "https://dawn-snowflake-3dab.jorgecalvoj11.workers.dev";
 
