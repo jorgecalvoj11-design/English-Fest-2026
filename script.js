@@ -3,8 +3,8 @@
    ============================================= */
 
 // ── API CONFIGURATION ────────────────────────
-const API_KEY   = "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";
-const API_MODEL = "claude-haiku-4-5-20251001";
+// No API key here — it is stored securely in Cloudflare Worker environment variables.
+const API_MODEL  = "claude-haiku-4-5-20251001";
 const WORKER_URL = "https://dawn-snowflake-3dab.jorgecalvoj11.workers.dev";
 
 // ── MANUAL CONTEXT (system prompt) ───────────
@@ -276,7 +276,6 @@ async function sendMessage() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        apiKey: API_KEY,
         model: API_MODEL,
         max_tokens: 1000,
         system: SYSTEM_PROMPT,
