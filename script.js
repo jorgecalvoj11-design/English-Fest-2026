@@ -5,12 +5,7 @@
 // ── API CONFIGURATION ────────────────────────
 const API_KEY   = "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";
 const API_MODEL = "claude-haiku-4-5-20251001";
-
-// ── CLOUDFLARE WORKER URL ─────────────────────
-// This proxy worker handles CORS so the API call works from GitHub Pages.
-// Deploy the worker from worker.js to Cloudflare (free) and paste the URL here.
-// Example: "https://english-festival.YOUR-SUBDOMAIN.workers.dev"
-const WORKER_URL = "https://dawn-snowflake-3dab.jorgecalvoj11.workers.dev/";
+const WORKER_URL = "https://dawn-snowflake-3dab.jorgecalvoj11.workers.dev";
 
 // ── MANUAL CONTEXT (system prompt) ───────────
 const SYSTEM_PROMPT = `
@@ -263,7 +258,6 @@ async function sendMessage() {
   const text  = input.value.trim();
   if (!text || isLoading) return;
 
-  // Hide welcome card on first message
   const welcome = document.getElementById("welcome-card");
   if (welcome) welcome.style.display = "none";
 
@@ -278,40 +272,17 @@ async function sendMessage() {
   showTyping();
 
   try {
-    const payload = {
-      model: API_MODEL,
-      max_tokens: 1000,
-      system: SYSTEM_PROMPT,
-      messages: conversationHistory
-    };
-
-    // Try direct API first (works locally), fall back to worker (for GitHub Pages)
-    let response;
-    let usedWorker = false;
-
-    try {
-      response = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-api-key": API_KEY,
-          "anthropic-version": "2023-06-01",
-          "anthropic-dangerous-direct-browser-access": "true"
-        },
-        body: JSON.stringify(payload)
-      });
-    } catch (corsError) {
-      // CORS blocked — try via worker
-      if (!WORKER_URL || WORKER_URL === "PASTE_YOUR_WORKER_URL_HERE") {
-        throw new Error("CORS_NO_WORKER");
-      }
-      usedWorker = true;
-      response = await fetch(WORKER_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ apiKey: API_KEY, ...payload })
-      });
-    }
+    const response = await fetch(WORKER_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        apiKey: API_KEY,
+        model: API_MODEL,
+        max_tokens: 1000,
+        system: SYSTEM_PROMPT,
+        messages: conversationHistory
+      })
+    });
 
     const data = await response.json();
     removeTyping();
@@ -322,23 +293,16 @@ async function sendMessage() {
       addMessage("bot", reply);
     } else if (data.error) {
       addMessage("bot", `⚠️ API Error: ${data.error.message}`, true);
+      console.error("API error:", data.error);
     } else {
       addMessage("bot", "⚠️ No response received. Please try again.", true);
+      console.error("Unexpected response:", data);
     }
 
   } catch (err) {
     removeTyping();
-    if (err.message === "CORS_NO_WORKER") {
-      addMessage("bot",
-        "⚠️ **CORS Error:** This site is hosted on GitHub Pages which blocks direct API calls.\n\n" +
-        "To fix this, deploy the included `worker.js` to Cloudflare Workers (free) and paste the URL into `script.js`.\n\n" +
-        "See `SETUP.md` for step-by-step instructions.",
-        true
-      );
-    } else {
-      addMessage("bot", "⚠️ Connection error. Please check your internet and try again.", true);
-    }
-    console.error("Error:", err);
+    addMessage("bot", "⚠️ Connection error. Please check your internet and try again.", true);
+    console.error("Fetch error:", err);
   }
 
   isLoading = false;
