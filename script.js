@@ -165,6 +165,7 @@ If a question cannot be answered from this manual, politely say you don't have t
 - DRE Grande del Térraba: diana.granados.villafuerte@mep.go.cr
 - DRE Limón: kisha.davis.smith@mep.go.cr
 - DRE Sulá: jose.diaz.martinez@mep.go.cr
+- DRE Central del Pacífico: mailyn.leiva.badilla@mep.go.cr
 
 IMPORTANT: Only mention these contacts when you truly cannot answer the question from the manual. Do NOT mention them in every response.
 `.trim();
